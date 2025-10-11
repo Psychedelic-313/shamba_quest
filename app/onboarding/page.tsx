@@ -16,7 +16,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Loader, Sprout } from "lucide-react"
+import { Sprout } from "lucide-react"
 
 const experienceLevels = [
     {
@@ -164,9 +164,7 @@ export default function OnboardingPage() {
                                     {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
 
                                     <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
-                                        {isLoading ?
-                                            `${(<Loader className="animate-spin" />)} Setting up your profile...`
-                                            : "Start Learning"}
+                                        {isLoading ? "Setting up your profile..." : "Start Learning"}
                                     </Button>
                                 </div>
                             </form>
