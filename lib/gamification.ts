@@ -1,11 +1,31 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 
-interface BadgeCheck {
+// --------------------
+// Types
+// --------------------
+
+interface BadgeThreshold {
     name: string
     xpRequirement: number
 }
 
-const BADGE_THRESHOLDS: BadgeCheck[] = [
+interface UserBadge {
+    badges: {
+        name: string
+    }
+}
+
+interface BadgeRecord {
+    id: string
+    name: string
+    xp_requirement: number
+}
+
+// --------------------
+// Badge thresholds (local XP milestones)
+// --------------------
+
+const BADGE_THRESHOLDS: BadgeThreshold[] = [
     { name: "Seedling", xpRequirement: 0 },
     { name: "Sprout", xpRequirement: 50 },
     { name: "Growing Strong", xpRequirement: 100 },
@@ -13,46 +33,80 @@ const BADGE_THRESHOLDS: BadgeCheck[] = [
     { name: "Farming Expert", xpRequirement: 500 },
 ]
 
-export async function checkAndAwardBadges(supabase: SupabaseClient, userId: string, newTotalXP: number) {
+// --------------------
+// Award Eligible Badges
+// --------------------
+
+export async function awardEligibleBadges(
+    supabase: SupabaseClient,
+    userId: string,
+    newTotalXP: number
+): Promise<string[]> {
     const newBadges: string[] = []
 
-    // Get user's current badges
-    const { data: currentBadges } = await supabase.from("user_badges").select("badges(name)").eq("user_id", userId)
+    // Fetch user's current badges (join to badges table)
+    const { data: currentBadges, error: currentBadgesError } = await supabase
+        .from("user_badges")
+        .select("badges(name)")
+        .eq("user_id", userId)
+        .returns<UserBadge[]>()
 
-    const earnedBadgeNames = currentBadges?.map((ub: any) => ub.badges.name) || []
+    if (currentBadgesError) {
+        console.error("Error fetching current badges:", currentBadgesError.message)
+        return []
+    }
 
-    // Check each badge threshold
+    const earnedBadgeNames = currentBadges?.map((ub) => ub.badges.name) || []
+
+    // Fetch all badge metadata
+    const { data: badgeList, error: badgeError } = await supabase
+        .from("badges")
+        .select("id, name, xp_requirement")
+        .returns<BadgeRecord[]>()
+
+    if (badgeError || !badgeList) {
+        console.error("Error fetching badges:", badgeError?.message)
+        return []
+    }
+
+    // Check thresholds and award new ones
     for (const badge of BADGE_THRESHOLDS) {
         if (newTotalXP >= badge.xpRequirement && !earnedBadgeNames.includes(badge.name)) {
-            // Award this badge
-            const { data: badgeData } = await supabase.from("badges").select("id").eq("name", badge.name).single()
+            const badgeData = badgeList.find((b) => b.name === badge.name)
+            if (!badgeData) continue
 
-            if (badgeData) {
-                const { error } = await supabase.from("user_badges").insert({
-                    user_id: userId,
-                    badge_id: badgeData.id,
-                })
+            const { error: insertError } = await supabase.from("user_badges").insert({
+                user_id: userId,
+                badge_id: badgeData.id,
+            })
 
-                if (!error) {
-                    newBadges.push(badge.name)
-                }
+            if (insertError) {
+                console.error(`Error inserting badge ${badge.name}:`, insertError.message)
+                continue
             }
+
+            newBadges.push(badge.name)
         }
     }
 
     return newBadges
 }
 
+// --------------------
+// Level & XP Utilities
+// --------------------
+
+const XP_PER_LEVEL = 100
+
 export function calculateLevel(totalXP: number): number {
-    return Math.floor(totalXP / 100) + 1
+    return Math.floor(totalXP / XP_PER_LEVEL) + 1
 }
 
 export function getXPForNextLevel(currentLevel: number): number {
-    return currentLevel * 100
+    return currentLevel * XP_PER_LEVEL
 }
 
-export function getLevelProgress(totalXP: number, currentLevel: number): number {
-    const xpInCurrentLevel = totalXP % 100
-    const xpNeededForLevel = 100
-    return (xpInCurrentLevel / xpNeededForLevel) * 100
+export function getLevelProgress(totalXP: number): number {
+    const xpInCurrentLevel = totalXP % XP_PER_LEVEL
+    return (xpInCurrentLevel / XP_PER_LEVEL) * 100
 }
