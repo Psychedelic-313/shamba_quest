@@ -11,7 +11,7 @@ import { Mail, Sprout } from "lucide-react"
 
 export default function CheckEmailPage() {
     return (
-        <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-b from-background to-muted">
+        <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-b from-green-50 to-muted">
             <div className="w-full max-w-md">
                 <div className="flex flex-col gap-6">
                     <div className="flex items-center justify-center gap-2 mb-4">

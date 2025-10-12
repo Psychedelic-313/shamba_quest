@@ -30,5 +30,10 @@ export default async function QuizPage() {
     )
   }
 
-  return <QuizInterface questions={questions} userId={user.id} />
+  return (
+    <QuizInterface
+      questions={questions}
+      userId={user.id}
+    />
+  );
 }

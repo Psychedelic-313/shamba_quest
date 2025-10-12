@@ -45,7 +45,7 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-muted">
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/dashboard">
@@ -68,7 +68,7 @@ export default async function ProfilePage() {
         <Card className="mb-8">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-              <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
+              <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center ring-4 ring-zinc-100">
                 <span className="text-4xl font-bold text-primary">
                   {profile?.display_name?.charAt(0) || "F"}
                 </span>
