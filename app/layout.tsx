@@ -16,15 +16,11 @@ export const metadata: Metadata = {
   title: "ShambaQuest - Learn Climate-Smart Agriculture",
   description: "Gamified learning platform for Kenyan youth to master climate-smart farming practices",
   icons: {
-    icon: '/favicon.ico',
+    icon: '/enviroment.png',
   }
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children, }: Readonly<{ children: React.ReactNode; }>) {
   return (
     <html lang="en">
       <body

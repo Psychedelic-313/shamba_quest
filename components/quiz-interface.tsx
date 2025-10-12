@@ -24,6 +24,7 @@ interface QuizInterfaceProps {
 }
 
 export default function QuizInterface({ questions, userId }: QuizInterfaceProps) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [userAnswer, setUserAnswer] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)

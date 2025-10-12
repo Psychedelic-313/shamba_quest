@@ -27,12 +27,15 @@ export default async function ProfilePage() {
     .order("earned_at", { ascending: false })
 
   // Fetch quiz statistics
-  const { data: attempts } = await supabase.from("quiz_attempts").select("is_correct, xp_earned").eq("user_id", user.id)
+  const { data: attempts } = await supabase
+    .from("quiz_attempts")
+    .select("is_correct, xp_earned")
+    .eq("user_id", user.id)
 
-  const totalAttempts = attempts?.length || 0
-  const correctAttempts = attempts?.filter((a) => a.is_correct).length || 0
-  const totalXPEarned = attempts?.reduce((sum, a) => sum + a.xp_earned, 0) || 0
-  const accuracyRate = totalAttempts > 0 ? Math.round((correctAttempts / totalAttempts) * 100) : 0
+  const totalAttempts = attempts?.length || 0;
+  const correctAttempts = attempts?.filter((a) => a.is_correct).length || 0;
+  // const totalXPEarned = attempts?.reduce((sum, a) => sum + a.xp_earned, 0) || 0;
+  const accuracyRate = totalAttempts > 0 ? Math.round((correctAttempts / totalAttempts) * 100) : 0;
 
   const handleSignOut = async () => {
     "use server"
@@ -43,7 +46,6 @@ export default async function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
-      {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/dashboard">
@@ -54,8 +56,8 @@ export default async function ProfilePage() {
           </Link>
           <h1 className="text-xl font-bold">Profile</h1>
           <form action={handleSignOut}>
-            <Button variant="ghost" size="sm" type="submit">
-              <LogOut className="h-4 w-4 mr-2" />
+            <Button variant="ghost" size="sm" className="text-rose-500 p-3" type="submit">
+              <LogOut className="h-4 w-4 mr-2 " />
               Sign Out
             </Button>
           </form>
@@ -63,19 +65,21 @@ export default async function ProfilePage() {
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Profile Header */}
         <Card className="mb-8">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-4xl font-bold text-primary">{profile?.display_name?.charAt(0) || "F"}</span>
+                <span className="text-4xl font-bold text-primary">
+                  {profile?.display_name?.charAt(0) || "F"}
+                </span>
               </div>
+
               <div className="flex-1 text-center md:text-left">
                 <h2 className="text-3xl font-bold mb-2">{profile?.display_name || "Farmer"}</h2>
                 <p className="text-muted-foreground mb-4">{user.email}</p>
                 <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                   <Badge variant="secondary" className="text-sm">
-                    Level {profile?.current_level || 1}
+                    Level {profile?.current_level}
                   </Badge>
                   <Badge variant="outline" className="text-sm capitalize">
                     {profile?.experience_level || "beginner"}
@@ -111,7 +115,7 @@ export default async function ProfilePage() {
                   <p className="text-sm text-muted-foreground">Quizzes Taken</p>
                   <p className="text-2xl font-bold">{totalAttempts}</p>
                 </div>
-                <Target className="h-8 w-8 text-secondary" />
+                <Target className="h-8 w-8 text-primary" />
               </div>
             </CardContent>
           </Card>
@@ -123,7 +127,7 @@ export default async function ProfilePage() {
                   <p className="text-sm text-muted-foreground">Accuracy</p>
                   <p className="text-2xl font-bold">{accuracyRate}%</p>
                 </div>
-                <Trophy className="h-8 w-8 text-accent-foreground" />
+                <Trophy className="h-8 w-8 text-primary" />
               </div>
             </CardContent>
           </Card>
@@ -160,10 +164,10 @@ export default async function ProfilePage() {
             {userBadges && userBadges.length > 0 ? (
               <div className="grid sm:grid-cols-2 gap-4">
                 {userBadges.map((userBadge) => {
-                  const badge = userBadge.badges as any
+                  const badge = userBadge.badges
                   return (
-                    <div key={userBadge.id} className="flex items-start gap-4 p-4 rounded-lg bg-muted/50">
-                      <div className="text-4xl">{badge.icon}</div>
+                    <div key={userBadge.id} className="flex items-center gap-4 p-4 rounded-lg bg-muted/50">
+                      <div className="text-4xl bg-primary p-2 rounded-xl">{badge.icon}</div>
                       <div className="flex-1">
                         <h3 className="font-semibold">{badge.name}</h3>
                         <p className="text-sm text-muted-foreground mb-2">{badge.description}</p>

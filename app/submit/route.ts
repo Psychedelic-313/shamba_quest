@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
-import { checkAndAwardBadges, calculateLevel } from "@/lib/gamification"
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { awardEligibleBadges, calculateLevel } from "@/lib/gamification";
 
 // Simple AI evaluation function (simulated)
 async function evaluateAnswer(
@@ -28,7 +28,12 @@ async function evaluateAnswer(
 
 export async function POST(request: Request) {
   try {
-    const { questionId, userAnswer, correctAnswer, userId, xpReward } = await request.json()
+    const {
+      questionId,
+      userAnswer,
+      correctAnswer,
+      userId,
+      xpReward } = await request.json()
 
     const supabase = await createClient()
 
@@ -69,7 +74,7 @@ export async function POST(request: Request) {
       })
       .eq("id", userId)
 
-    const newBadges = await checkAndAwardBadges(supabase, userId, newTotalXP)
+    const newBadges = await awardEligibleBadges(supabase, userId, newTotalXP)
 
     const leveledUp = newLevel > (profile?.current_level || 1)
 

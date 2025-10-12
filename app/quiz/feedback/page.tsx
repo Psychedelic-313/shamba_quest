@@ -6,9 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { CheckCircle2, XCircle, Lightbulb, Home, Trophy, TrendingUp } from "lucide-react"
 
-export default async function FeedbackPage({
-    searchParams,
-}: {
+export default async function FeedbackPage({ searchParams, }: {
     searchParams: {
         attemptId: string
         isCorrect: string
@@ -18,6 +16,7 @@ export default async function FeedbackPage({
         newLevel?: string
     }
 }) {
+
     const supabase = await createClient()
 
     const {
