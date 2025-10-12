@@ -1,36 +1,65 @@
+"use client"
+
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sprout, Trophy, Users, Zap, Leaf, Star, BookOpen } from "lucide-react"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background to-muted">
+    <main className="min-h-screen bg-gradient-to-b from-background to-muted text-foreground">
       {/* HERO SECTION */}
-      <section className="relative bg-gradient-to-r from-green-50 via-emerald-100 to-green-50 dark:from-background dark:via-muted dark:to-background">
-        <div className="absolute inset-0 bg-[url('/images/farm-bg.jpg')] bg-cover bg-center opacity-20"></div>
-        <div className="container mx-auto px-4 py-24 md:py-32 relative z-10 text-center flex flex-col items-center gap-8">
-          <div className="flex items-center gap-3">
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1500937386664-56c6b5be93f6')] bg-cover bg-center opacity-25"></div>
+        <div className="relative z-10 container mx-auto px-4 py-24 md:py-32 text-center flex flex-col items-center gap-8">
+          <motion.div
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex items-center gap-3"
+          >
             <Sprout className="h-12 w-12 text-primary" />
             <h1 className="text-5xl md:text-6xl font-bold">ShambaQuest</h1>
-          </div>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl">
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="text-xl md:text-2xl text-muted-foreground max-w-2xl"
+          >
             Master climate-smart agriculture through gamified learning. Earn XP, unlock badges, and become a farming champion!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="flex flex-col sm:flex-row gap-4 mt-4"
+          >
             <Button asChild size="lg" className="text-lg rounded-2xl">
               <Link href="/auth/sign-up">Start Your Journey</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="text-lg bg-transparent rounded-2xl">
+            <Button asChild size="lg" variant="outline" className="text-lg rounded-2xl">
               <Link href="/auth/login">Login</Link>
             </Button>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* WHY SECTION */}
+      {/* WHY SHAMBAQUEST */}
       <section className="container mx-auto px-4 py-20">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Why ShambaQuest?</h2>
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-3xl md:text-4xl font-bold text-center mb-12"
+        >
+          Why ShambaQuest?
+        </motion.h2>
+
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { icon: Zap, title: "Interactive Quizzes", text: "Answer questions about climate-smart farming and get instant AI-powered feedback." },
@@ -38,15 +67,23 @@ export default function Home() {
             { icon: Users, title: "Compete & Learn", text: "Climb the leaderboard and see how you rank against other young farmers." },
             { icon: Sprout, title: "Real-World Skills", text: "Learn practical sustainable farming techniques for your shamba." },
           ].map((item, i) => (
-            <Card key={i} className="hover:scale-105 transition-transform">
-              <CardContent className="pt-6 flex flex-col items-center text-center gap-4">
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <item.icon className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{item.text}</p>
-              </CardContent>
-            </Card>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.2, duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <Card className="hover:scale-105 transition-transform shadow-md">
+                <CardContent className="pt-6 flex flex-col items-center text-center gap-4">
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <item.icon className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold">{item.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{item.text}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
       </section>
@@ -54,20 +91,36 @@ export default function Home() {
       {/* HOW IT WORKS */}
       <section className="bg-muted py-20">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-12">How It Works</h2>
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-4xl font-bold mb-12"
+          >
+            How It Works
+          </motion.h2>
+
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { icon: BookOpen, step: "1. Create an Account", text: "Sign up and set your farming goals." },
               { icon: Star, step: "2. Learn & Earn XP", text: "Play quizzes and climb the ranks." },
               { icon: Leaf, step: "3. Apply Your Skills", text: "Use your new knowledge on your real farm." },
             ].map((s, i) => (
-              <div key={i} className="flex flex-col items-center gap-4">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.3, duration: 0.8 }}
+                viewport={{ once: true }}
+                className="flex flex-col items-center gap-4"
+              >
                 <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
                   <s.icon className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold">{s.step}</h3>
                 <p className="text-muted-foreground max-w-xs">{s.text}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -75,7 +128,16 @@ export default function Home() {
 
       {/* IMPACT STATS */}
       <section className="container mx-auto px-4 py-20 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8">Our Impact</h2>
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-3xl md:text-4xl font-bold mb-8"
+        >
+          Our Impact
+        </motion.h2>
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
             { number: "500+", label: "Learners" },
@@ -83,27 +145,97 @@ export default function Home() {
             { number: "20+", label: "Topics Covered" },
             { number: "95%", label: "User Satisfaction" },
           ].map((stat, i) => (
-            <div key={i}>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.2, duration: 0.8 }}
+              viewport={{ once: true }}
+            >
               <p className="text-4xl font-bold text-primary">{stat.number}</p>
               <p className="text-muted-foreground">{stat.label}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
 
-      {/* CTA SECTION */}
+      {/* TESTIMONIALS */}
+      <section className="bg-muted py-20">
+        <div className="container mx-auto px-4 text-center">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-4xl font-bold mb-12"
+          >
+            What Our Learners Say
+          </motion.h2>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                img: "https://images.unsplash.com/photo-1581579184681-c4e5e6e8f0b8",
+                name: "Mary Wanjiku",
+                location: "Nakuru County",
+                text: "I used to struggle with soil erosion, but now I’ve learned better crop rotation! ShambaQuest made it easy and fun.",
+              },
+              {
+                img: "https://images.unsplash.com/photo-1600481176431-46d4c3c5b362",
+                name: "Kevin Ochieng",
+                location: "Kisumu",
+                text: "Earning XP while learning about farming is genius! I can now apply new techniques on my own shamba.",
+              },
+              {
+                img: "https://images.unsplash.com/photo-1573497019252-c9a2f7e1a7b9",
+                name: "Amina Noor",
+                location: "Garissa",
+                text: "ShambaQuest feels like a game but teaches real skills. I’ve even inspired my friends to join.",
+              },
+            ].map((t, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.2, duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                <Card className="shadow-lg hover:shadow-xl transition-all bg-background">
+                  <CardContent className="p-6 flex flex-col items-center text-center gap-4">
+                    <img src={t.img} alt={t.name} className="h-20 w-20 rounded-full object-cover" />
+                    <p className="italic text-muted-foreground">“{t.text}”</p>
+                    <div>
+                      <p className="font-semibold">{t.name}</p>
+                      <p className="text-sm text-muted-foreground">{t.location}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
       <section className="container mx-auto px-4 py-20">
-        <Card className="bg-primary text-primary-foreground border-0">
-          <CardContent className="py-12 flex flex-col items-center text-center gap-6">
-            <h2 className="text-3xl md:text-4xl font-bold">Ready to Become a Climate Champion?</h2>
-            <p className="text-lg max-w-2xl opacity-90">
-              Join thousands of young Kenyan farmers learning sustainable agriculture practices through fun, interactive quizzes.
-            </p>
-            <Button asChild size="lg" variant="secondary" className="text-lg rounded-2xl">
-              <Link href="/auth/sign-up">Get Started Free</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <Card className="bg-primary text-primary-foreground border-0 shadow-xl">
+            <CardContent className="py-12 flex flex-col items-center text-center gap-6">
+              <h2 className="text-3xl md:text-4xl font-bold">Ready to Become a Climate Champion?</h2>
+              <p className="text-lg max-w-2xl opacity-90">
+                Join thousands of young Kenyan farmers learning sustainable agriculture practices through fun, interactive quizzes.
+              </p>
+              <Button asChild size="lg" variant="secondary" className="text-lg rounded-2xl">
+                <Link href="/auth/sign-up">Get Started Free</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
       </section>
 
       {/* FOOTER */}
