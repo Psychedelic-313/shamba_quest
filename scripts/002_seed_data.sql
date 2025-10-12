@@ -19,3 +19,4 @@ INSERT INTO public.quiz_questions (question, correct_answer, difficulty, categor
   ('How can farmers use weather forecasting for climate adaptation?', 'Plan planting and harvesting schedules based on predicted rainfall patterns', 'advanced', 'Climate Technology', 20),
   ('What role do cover crops play in sustainable agriculture?', 'Prevent soil erosion, improve soil fertility, and suppress weeds', 'advanced', 'Sustainable Practices', 20)
 ON CONFLICT DO NOTHING;
+ 
