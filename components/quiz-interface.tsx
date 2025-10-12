@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,6 +27,12 @@ export default function QuizInterface({ questions, userId }: QuizInterfaceProps)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [userAnswer, setUserAnswer] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [feedbackData, setFeedbackData] = useState<{
+    isCorrect: boolean
+    xpEarned: number
+    correctAnswer?: string
+    aiFeedback?: string
+  } | null>(null)
   const router = useRouter()
 
   const currentQuestion = questions[currentQuestionIndex]
@@ -37,7 +41,6 @@ export default function QuizInterface({ questions, userId }: QuizInterfaceProps)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!userAnswer.trim()) return
-
     setIsSubmitting(true)
 
     try {
@@ -55,27 +58,28 @@ export default function QuizInterface({ questions, userId }: QuizInterfaceProps)
 
       const result = await response.json()
 
-      const params = new URLSearchParams({
-        attemptId: result.attemptId,
-        isCorrect: result.isCorrect.toString(),
-        xpEarned: result.xpEarned.toString(),
+      // Inline feedback
+      setFeedbackData({
+        isCorrect: result.isCorrect,
+        xpEarned: result.xpEarned,
+        correctAnswer: currentQuestion.correct_answer,
+        aiFeedback: result.aiFeedback || "Good effort! Review this topic for improvement.",
       })
-
-      if (result.newBadges && result.newBadges.length > 0) {
-        params.append("newBadges", result.newBadges.join(","))
-      }
-
-      if (result.leveledUp) {
-        params.append("leveledUp", "true")
-        params.append("newLevel", result.newLevel.toString())
-      }
-
-      router.push(`/quiz/feedback?${params.toString()}`)
     } catch (error) {
-      console.error("[v0] Error submitting answer:", error)
+      console.error("Error submitting answer:", error)
       alert("Failed to submit answer. Please try again.")
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleNext = () => {
+    if (currentQuestionIndex === questions.length - 1) {
+      router.push("/dashboard") // ✅ Final question → Back to Dashboard
+    } else {
+      setUserAnswer("")
+      setFeedbackData(null)
+      setCurrentQuestionIndex((prev) => prev + 1)
     }
   }
 
@@ -114,32 +118,67 @@ export default function QuizInterface({ questions, userId }: QuizInterfaceProps)
             <CardTitle className="text-2xl leading-relaxed">{currentQuestion.question}</CardTitle>
             <CardDescription>Write your answer below. Be as detailed as possible.</CardDescription>
           </CardHeader>
+
           <CardContent>
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-6">
-                <Textarea
-                  placeholder="Type your answer here..."
-                  value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
-                  rows={6}
-                  className="resize-none"
-                  disabled={isSubmitting}
-                />
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">Reward: +{currentQuestion.xp_reward} XP</p>
-                  <Button type="submit" size="lg" disabled={!userAnswer.trim() || isSubmitting}>
-                    {isSubmitting ? (
-                      "Submitting..."
-                    ) : (
-                      <>
-                        Submit Answer
-                        <Send className="ml-2 h-4 w-4" />
-                      </>
-                    )}
-                  </Button>
+            {!feedbackData ? (
+              <form onSubmit={handleSubmit}>
+                <div className="space-y-6">
+                  <Textarea
+                    placeholder="Type your answer here..."
+                    value={userAnswer}
+                    onChange={(e) => setUserAnswer(e.target.value)}
+                    rows={6}
+                    className="resize-none"
+                    disabled={isSubmitting}
+                  />
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">Reward: +{currentQuestion.xp_reward} XP</p>
+                    <Button type="submit" size="lg" disabled={!userAnswer.trim() || isSubmitting}>
+                      {isSubmitting ? "Submitting..." : (
+                        <>
+                          Submit Answer
+                          <Send className="ml-2 h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
+              </form>
+            ) : (
+              <div className="space-y-6 text-center">
+                <p
+                  className={`text-lg font-semibold ${
+                    feedbackData.isCorrect ? "text-green-600" : "text-red-500"
+                  }`}
+                >
+                  {feedbackData.isCorrect ? "✅ Correct!" : "❌ Not Quite."}
+                </p>
+
+                <p className="text-sm text-muted-foreground">
+                  You earned <strong>{feedbackData.xpEarned}</strong> XP
+                </p>
+
+                {feedbackData.aiFeedback && (
+                  <div className="p-4 rounded-md bg-accent/10 border border-accent text-left">
+                    <p className="font-medium mb-2">AI Feedback:</p>
+                    <p>{feedbackData.aiFeedback}</p>
+                  </div>
+                )}
+
+                {!feedbackData.isCorrect && (
+                  <div className="p-4 rounded-md bg-muted border border-border text-left">
+                    <p className="font-medium mb-2">Correct Answer:</p>
+                    <p>{feedbackData.correctAnswer}</p>
+                  </div>
+                )}
+
+                <Button onClick={handleNext} size="lg" className="mt-4">
+                  {currentQuestionIndex === questions.length - 1
+                    ? "Back to Dashboard"
+                    : "Next Question"}
+                </Button>
               </div>
-            </form>
+            )}
           </CardContent>
         </Card>
       </div>
