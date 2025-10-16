@@ -1,27 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { awardEligibleBadges, calculateLevel } from "@/lib/gamification"
-
-// Simple AI evaluation function
-async function evaluateAnswer(
-  userAnswer: string,
-  correctAnswer: string
-): Promise<{ isCorrect: boolean; feedback: string }> {
-  const normalizedUser = userAnswer.toLowerCase().trim()
-  const normalizedCorrect = correctAnswer.toLowerCase().trim()
-
-  const correctKeywords = normalizedCorrect.split(" ").filter((word) => word.length > 3)
-  const matchedKeywords = correctKeywords.filter((keyword) => normalizedUser.includes(keyword))
-
-  const matchPercentage = (matchedKeywords.length / correctKeywords.length) * 100
-  const isCorrect = matchPercentage >= 50
-
-  const feedback = isCorrect
-    ? `Great job! Your answer demonstrates a solid understanding of the topic. You identified key points like ${matchedKeywords.slice(0, 2).join(" and ")}. Keep it up!`
-    : `Good effort! The correct answer is: ${correctAnswer}. Try to include those key details next time — you're learning fast!`
-
-  return { isCorrect, feedback }
-}
+import { evaluateAnswer } from './evaluator'
 
 export async function POST(request: Request) {
   try {
