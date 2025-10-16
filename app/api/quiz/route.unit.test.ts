@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals';
+
 // Mock the evaluator module so the POST handler receives a deterministic correct result
 jest.mock('./submit/evaluator', () => ({
   evaluateAnswer: jest.fn(() => Promise.resolve({ isCorrect: true, feedback: 'Great job! Your answer demonstrates a good understanding.' })),
@@ -8,15 +10,16 @@ import { POST } from './route'
 // Mock Supabase client
 const mockInsert = jest.fn().mockReturnThis()
 const mockSelect = jest.fn().mockReturnThis()
-const mockSingle = jest.fn().mockResolvedValue({
+const mockSingle = jest.fn<() => Promise<any>>().mockResolvedValue({
   data: { id: 'attempt789' },
   error: null,
 })
 
 const mockProfileSelect = jest.fn().mockReturnThis()
 const mockProfileEq = jest.fn().mockReturnThis()
-const mockProfileSingle = jest.fn().mockResolvedValue({
+const mockProfileSingle = jest.fn<() => Promise<any>>().mockResolvedValue({
   data: { total_xp: 200, current_level: 2 },
+  error: null,
 })
 
 const mockUpdate = jest.fn().mockReturnThis()
