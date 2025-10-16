@@ -33,7 +33,7 @@ export default function SignUpPage() {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/onboarding`,
+                    emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/auth/callback`,
                     data: {
                         display_name: displayName,
                     },
@@ -49,7 +49,7 @@ export default function SignUpPage() {
     }
 
     return (
-        <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-b from-background to-muted">
+        <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-b from-green-50 to-muted">
             <div className="w-full max-w-md">
                 <div className="flex flex-col gap-6">
                     <div className="flex items-center justify-center gap-2 mb-4">
@@ -95,6 +95,7 @@ export default function SignUpPage() {
                                             minLength={6}
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
+                                            autoComplete="new-password"
                                         />
                                         <p className="text-xs text-muted-foreground">Must be at least 6 characters</p>
                                     </div>

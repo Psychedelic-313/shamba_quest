@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -175,38 +176,43 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                img: "https://images.unsplash.com/photo-1581579184681-c4e5e6e8f0b8",
+                img: "/enviroment.png",
                 name: "Mary Wanjiku",
                 location: "Nakuru County",
-                text: "I used to struggle with soil erosion, but now I’ve learned better crop rotation! ShambaQuest made it easy and fun.",
+                text: "I used to struggle with soil erosion, but now I've learned better crop rotation! ShambaQuest made it easy and fun.",
               },
               {
-                img: "https://images.unsplash.com/photo-1600481176431-46d4c3c5b362",
+                img: "/enviroment.png",
                 name: "Kevin Ochieng",
                 location: "Kisumu",
                 text: "Earning XP while learning about farming is genius! I can now apply new techniques on my own shamba.",
               },
               {
-                img: "https://images.unsplash.com/photo-1573497019252-c9a2f7e1a7b9",
+                img: "/enviroment.png",
                 name: "Amina Noor",
                 location: "Garissa",
-                text: "ShambaQuest feels like a game but teaches real skills. I’ve even inspired my friends to join.",
+                text: "ShambaQuest feels like a game but teaches real skills. I've even inspired my friends to join.",
               },
-            ].map((t, i) => (
+            ].map(({ text, name, location, img }, index) => (
               <motion.div
-                key={i}
+                key={index}
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.2, duration: 0.8 }}
+                transition={{ delay: index * 0.2, duration: 0.8 }}
                 viewport={{ once: true }}
               >
                 <Card className="shadow-lg hover:shadow-xl transition-all bg-background">
                   <CardContent className="p-6 flex flex-col items-center text-center gap-4">
-                    <img src={t.img} alt={t.name} className="h-20 w-20 rounded-full object-cover" />
-                    <p className="italic text-muted-foreground">“{t.text}”</p>
+                    <Image
+                      src={img}
+                      alt={name}
+                      width={80}
+                      height={80}
+                      className="h-20 w-20 rounded-full object-cover" />
+                    <p className="italic text-muted-foreground">“{text}”</p>
                     <div>
-                      <p className="font-semibold">{t.name}</p>
-                      <p className="text-sm text-muted-foreground">{t.location}</p>
+                      <p className="font-semibold">{name}</p>
+                      <p className="text-sm text-muted-foreground">{location}</p>
                     </div>
                   </CardContent>
                 </Card>
