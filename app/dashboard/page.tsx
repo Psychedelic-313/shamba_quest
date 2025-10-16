@@ -9,9 +9,7 @@ import { Trophy, Zap, Target, TrendingUp } from "lucide-react"
 export default async function DashboardPage() {
     const supabase = await createClient()
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
         redirect("/auth/login")
     }
@@ -33,17 +31,17 @@ export default async function DashboardPage() {
         .order("attempted_at", { ascending: false })
         .limit(5)
 
-    const correctAttempts = recentAttempts?.filter((a) => a.is_correct).length || 0
-    const totalAttempts = recentAttempts?.length || 0
-    const accuracyRate = totalAttempts > 0 ? Math.round((correctAttempts / totalAttempts) * 100) : 0
+    const correctAttempts = recentAttempts?.filter((attempt) => attempt.is_correct).length || 0;
+    const totalAttempts = recentAttempts?.length || 0;
+    const accuracyRate = totalAttempts > 0 ? Math.round((correctAttempts / totalAttempts) * 100) : 0;
 
     // Calculate level progress
-    const currentLevelXP = profile?.total_xp || 0
-    const nextLevelXP = (profile?.current_level || 1) * 100
-    const levelProgress = (currentLevelXP / nextLevelXP) * 100
+    const currentLevelXP = profile?.total_xp || 0;
+    const nextLevelXP = (profile?.current_level || 1) * 100;
+    const levelProgress = (currentLevelXP / nextLevelXP) * 100;
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+        <div className="min-h-screen bg-gradient-to-b from-green-50 to-muted">
             {/* Header */}
             <header className="border-b bg-card">
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">

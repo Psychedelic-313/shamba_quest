@@ -1,21 +1,20 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { motion, AnimatePresence } from "framer-motion"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Progress } from "@/components/ui/progress"
-import { ArrowLeft, Send } from "lucide-react"
 import Link from "next/link"
+import { Loader2, CheckCircle2, XCircle, ArrowLeft } from "lucide-react"
+import { ProgressCircle } from "./ui/progress-circle"
 
 interface Question {
   id: string
   question: string
   correct_answer: string
-  difficulty: string
-  category: string
   xp_reward: number
+  difficulty: string
 }
 
 interface QuizInterfaceProps {
@@ -24,69 +23,79 @@ interface QuizInterfaceProps {
 }
 
 export default function QuizInterface({ questions, userId }: QuizInterfaceProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [userAnswer, setUserAnswer] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [feedbackData, setFeedbackData] = useState<{
     isCorrect: boolean
+    ai_feedback: string
+    correctAnswer: string
     xpEarned: number
-    correctAnswer?: string
-    aiFeedback?: string
   } | null>(null)
-  const router = useRouter()
+  const [finished, setFinished] = useState(false)
 
-  const currentQuestion = questions[currentQuestionIndex]
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100
+  const currentQuestion = questions[currentIndex]
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
     if (!userAnswer.trim()) return
-    setIsSubmitting(true)
 
+    setLoading(true)
     try {
-      const response = await fetch("/api/quiz/submit", {
+      const res = await fetch("/api/quiz/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           questionId: currentQuestion.id,
-          userAnswer: userAnswer.trim(),
-          correctAnswer: currentQuestion.correct_answer,
           userId,
-          xpReward: currentQuestion.xp_reward,
+          userAnswer,
         }),
       })
 
-      const result = await response.json()
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Submission failed")
 
-      // Inline feedback
       setFeedbackData({
-        isCorrect: result.isCorrect,
-        xpEarned: result.xpEarned,
-        correctAnswer: currentQuestion.correct_answer,
-        aiFeedback: result.aiFeedback || "Good effort! Review this topic for improvement.",
+        isCorrect: data.isCorrect,
+        ai_feedback: data.ai_feedback,
+        correctAnswer: data.correctAnswer,
+        xpEarned: data.xpEarned,
       })
     } catch (error) {
-      console.error("Error submitting answer:", error)
-      alert("Failed to submit answer. Please try again.")
+      console.error("Quiz submission error:", error)
     } finally {
-      setIsSubmitting(false)
+      setLoading(false)
     }
   }
 
   const handleNext = () => {
-    if (currentQuestionIndex === questions.length - 1) {
-      router.push("/dashboard") // ✅ Final question → Back to Dashboard
-    } else {
+    if (currentIndex + 1 < questions.length) {
       setUserAnswer("")
       setFeedbackData(null)
-      setCurrentQuestionIndex((prev) => prev + 1)
+      setCurrentIndex((prev) => prev + 1)
+    } else {
+      setFinished(true)
     }
   }
 
+  if (finished) {
+    return (
+      <motion.div
+        className="min-h-[60vh] flex flex-col items-center justify-center text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
+        <h2 className="text-2xl font-bold mb-2">You&apos;ve completed this quiz!</h2>
+        <p className="text-muted-foreground mb-6">Great job — keep practicing to earn more XP and badges.</p>
+        <Button onClick={() => window.location.reload()}>Restart Quiz</Button>
+      </motion.div>
+    )
+  }
+
+  const quizProgress = ((currentIndex) / questions.length) * 100;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
-      {/* Header */}
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-muted">
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/dashboard">
@@ -96,92 +105,106 @@ export default function QuizInterface({ questions, userId }: QuizInterfaceProps)
             </Button>
           </Link>
           <div className="text-sm text-muted-foreground">
-            Question {currentQuestionIndex + 1} of {questions.length}
+            Question {currentIndex + 1} of {questions.length}
           </div>
         </div>
       </header>
-
       <div className="container mx-auto px-4 py-8 max-w-3xl">
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <Progress value={progress} className="h-2" />
-        </div>
-
-        {/* Question Card */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-primary bg-primary/10 px-3 py-1 rounded-full">
-                {currentQuestion.category}
-              </span>
-              <span className="text-sm text-muted-foreground capitalize">{currentQuestion.difficulty}</span>
-            </div>
-            <CardTitle className="text-2xl leading-relaxed">{currentQuestion.question}</CardTitle>
-            <CardDescription>Write your answer below. Be as detailed as possible.</CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            {!feedbackData ? (
-              <form onSubmit={handleSubmit}>
-                <div className="space-y-6">
-                  <Textarea
-                    placeholder="Type your answer here..."
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    rows={6}
-                    className="resize-none"
-                    disabled={isSubmitting}
-                  />
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">Reward: +{currentQuestion.xp_reward} XP</p>
-                    <Button type="submit" size="lg" disabled={!userAnswer.trim() || isSubmitting}>
-                      {isSubmitting ? "Submitting..." : (
-                        <>
-                          Submit Answer
-                          <Send className="ml-2 h-4 w-4" />
-                        </>
-                      )}
-                    </Button>
+        <div className="mx-auto flex justify-center items-center ">
+          <Card className="w-full max-w-2xl shadow-lg border-zinc-200 ring-5 ring-zinc-100">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold flex justify-between">
+                <div className="flex items-center justify-center gap-x-5">
+                  <ProgressCircle value={quizProgress}>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                      {Math.round(quizProgress)}%
+                    </span>
+                  </ProgressCircle>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                      Quiz Progress
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-500">
+                      Keep going! You&apos;re doing great.
+                    </p>
                   </div>
                 </div>
-              </form>
-            ) : (
-              <div className="space-y-6 text-center">
-                <p
-                  className={`text-lg font-semibold ${
-                    feedbackData.isCorrect ? "text-green-600" : "text-red-500"
-                  }`}
-                >
-                  {feedbackData.isCorrect ? "✅ Correct!" : "❌ Not Quite."}
-                </p>
+                <span className="text-muted-foreground text-sm capitalize">{currentQuestion.difficulty}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AnimatePresence mode="wait">
+                {!feedbackData ? (
+                  <motion.div
+                    key={`question-${currentIndex}`}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <p className="mb-6 text-lg leading-relaxed">{currentQuestion.question}</p>
+                    <Textarea
+                      value={userAnswer}
+                      onChange={(e) => setUserAnswer(e.target.value)}
+                      placeholder="Type your answer here..."
+                      className="min-h-[120px]"
+                    />
+                    <div className="mt-6 flex justify-end">
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={loading || !userAnswer.trim()}
+                        className="flex items-center gap-2"
+                      >
+                        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                        Submit
+                      </Button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={`feedback-${currentIndex}`}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      {feedbackData.isCorrect ? (
+                        <CheckCircle2 className="h-8 w-8 text-green-500" />
+                      ) : (
+                        <XCircle className="h-8 w-8 text-red-500" />
+                      )}
+                      <h3 className="text-xl font-bold">
+                        {feedbackData.isCorrect ? "Correct!" : "Not Quite"}
+                      </h3>
+                    </div>
 
-                <p className="text-sm text-muted-foreground">
-                  You earned <strong>{feedbackData.xpEarned}</strong> XP
-                </p>
+                    <p className="text-muted-foreground mb-2">
+                      You earned <strong>{feedbackData.xpEarned} XP</strong>
+                    </p>
 
-                {feedbackData.aiFeedback && (
-                  <div className="p-4 rounded-md bg-accent/10 border border-accent text-left">
-                    <p className="font-medium mb-2">AI Feedback:</p>
-                    <p>{feedbackData.aiFeedback}</p>
-                  </div>
+                    <div className="p-4 mb-4 rounded-lg bg-accent/10 border border-accent">
+                      <p className="leading-relaxed">{feedbackData.ai_feedback}</p>
+                    </div>
+
+                    {!feedbackData.isCorrect && (
+                      <div className="p-4 mb-4 rounded-lg bg-muted/30 border border-border">
+                        <p className="font-semibold mb-1">Correct Answer:</p>
+                        <p className="leading-relaxed">{feedbackData.correctAnswer}</p>
+                      </div>
+                    )}
+
+                    <div className="mt-6 flex justify-end">
+                      <Button onClick={handleNext} className="flex items-center gap-2">
+                        Next Question
+                      </Button>
+                    </div>
+                  </motion.div>
                 )}
-
-                {!feedbackData.isCorrect && (
-                  <div className="p-4 rounded-md bg-muted border border-border text-left">
-                    <p className="font-medium mb-2">Correct Answer:</p>
-                    <p>{feedbackData.correctAnswer}</p>
-                  </div>
-                )}
-
-                <Button onClick={handleNext} size="lg" className="mt-4">
-                  {currentQuestionIndex === questions.length - 1
-                    ? "Back to Dashboard"
-                    : "Next Question"}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              </AnimatePresence>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )
