@@ -184,7 +184,7 @@ export default function Home() {
                 img: "https://images.unsplash.com/photo-1600481176431-46d4c3c5b362",
                 name: "Kevin Ochieng",
                 location: "Kisumu",
-                text: "Earning XP while learning about farming is genius! I can now apply new techniques on my own shamba.",
+                text: "Earning XP while learning about farming is genius! I can now apply new techniques on my own farm.",
               },
               {
                 img: "https://images.unsplash.com/photo-1573497019252-c9a2f7e1a7b9",
